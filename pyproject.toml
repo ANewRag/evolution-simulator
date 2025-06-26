@@ -1,0 +1,13 @@
+[project]
+name = "evolution-simulator"
+version = "0.1.0"
+description = "A biologically realistic evolution simulator with a web frontend."
+authors = [
+    { name = "Anurag Kumar", email = "anuragkumar@cmu.edu" }
+]
+dependencies = []
+
+[build-system]
+requires = ["uv"]
+build-backend = "uv.build"
+
