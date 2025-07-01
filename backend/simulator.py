@@ -1,12 +1,17 @@
-class Organism:
-    def __init__(self, speed, vision_range, size):
-        self.speed = speed
-        self.vision_range = vision_range
-        self.size = size
-
-    def __repr__(self):
-        return f"Organism(speed={self.speed}, vision={self.vision_range}, size={self.size})"
+from environment import Environment
+from organism import Organism
 
 if __name__ == "__main__":
-    test = Organism(5, 10, 2)
-    print(test)
+    env = Environment(width=10, height=10, food_count=20)
+    org = Organism(speed=2, vision_range=3, size=1)
+    org.x, org.y = 5, 5
+
+    print("Before movement:")
+    env.display()
+    print(org)
+
+    for i in range(100): org.move_randomly(env)
+
+    print("\nAfter movement:")
+    env.display()
+    print(org)
