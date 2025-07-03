@@ -39,7 +39,7 @@ class Organism:
 
             if environment.has_food(new_x, new_y):
                 environment.remove_food(new_x, new_y)
-                print(f"{self} ate food at ({new_x}, {new_y})")
+                # print(f"{self} ate food at ({new_x}, {new_y})")
 
         self.move(dirX * steps, dirY * steps) # Move
     
@@ -55,5 +55,9 @@ class Organism:
         child_speed = min(child_speed, config.MAX_SPEED)
         child_size = min(child_size, config.MAX_SIZE)
 
-        return Organism(child_speed, child_size)
+        # Set random initial position
+        child_x = random.randint(0, config.WORLD_WIDTH - 1)
+        child_y = random.randint(0, config.WORLD_HEIGHT - 1)
+
+        return Organism(child_speed, child_size, child_x, child_y)
 
