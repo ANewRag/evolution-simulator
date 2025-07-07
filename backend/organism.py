@@ -16,9 +16,10 @@ class Organism:
     
     def die(self):
         self.is_alive = False
+        self.energy = 0 
 
-    def eat(self):
-        self.energy = min(100, self.energy + 10)
+    def eat(self, energy):
+        self.energy = min(100, self.energy + energy)
 
     def move(self, dx, dy):
         # Ensure organism stays within bounds
@@ -28,7 +29,7 @@ class Organism:
         self.energy -= self.size  # Moving costs energy, larger organisms burn more energy
         if self.energy <= 0: self.die() # Die if out of energy
 
-    def move_randomly(self, environment):
+    def move_randomly(self, environment, organism_list):
         dirX, dirY = random.choice([(1,0), (-1,0), (0,1), (0, -1)]) # North, South, East, West, respectively
         steps = int(round(random.uniform(1, self.speed)))
 
@@ -37,9 +38,23 @@ class Organism:
             new_x = max(0, min(self.x + dirX * i, config.WORLD_WIDTH - 1))
             new_y = max(0, min(self.y + dirY * i, config.WORLD_HEIGHT - 1))
 
+            # Eat food
             if environment.has_food(new_x, new_y):
                 environment.remove_food(new_x, new_y)
-                # print(f"{self} ate food at ({new_x}, {new_y})")
+                self.eat(10)
+
+            # Eat other organisms
+            for org in organism_list:
+                if (
+                    org.is_alive and 
+                    self.is_alive and
+                    org.x == new_x and 
+                    org.y == new_y and 
+                    org.size < self.size
+                ):
+                    # Consume the other organism
+                    self.eat(org.energy)
+                    org.die()
 
         self.move(dirX * steps, dirY * steps) # Move
     

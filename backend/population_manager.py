@@ -11,7 +11,6 @@ class PopulationManager:
         self.mutation_strength = config.MUTATION_STRENGTH
         self.environment = environment
         
-        self.num_dead = 0
         self.organism_list = []
         self.generation = 1
         
@@ -27,19 +26,23 @@ class PopulationManager:
 
     def get_organism_list(self):
         return self.organism_list
+    
+    def count_alive_organisms(self):
+        return sum(1 for org in self.organism_list if org.is_alive)
+    
+    def tick(self):
+        for organism in self.organism_list:
+                if organism.is_alive:
+                    organism.move_randomly(self.environment, self.organism_list)
+
+                """ if self.num_dead >= self.num_organisms - self.num_reproducing:
+                    break """
         
     def simulateGeneration(self):
         days = 0
         # Still have more living organisms than can reproduce
-        while self.num_dead < self.num_organisms - self.num_reproducing:
-            for organism in self.organism_list:
-                if organism.is_alive:
-                    organism.move_randomly(self.environment)
-
-                    if not organism.is_alive: # Died after moving
-                        self.num_dead += 1
-                if self.num_dead >= self.num_organisms - self.num_reproducing:
-                    break
+        while self.count_alive_organisms() > self.num_reproducing:
+            self.tick()
 
             days += 1
         if __debug__:
@@ -62,7 +65,6 @@ class PopulationManager:
 
     # Creates new list of organisms based on the top survivors from the previous generaiton
     def reproduce(self):
-        assert(self.num_organisms - self.num_dead == self.num_reproducing)
         new_organism_list = []
 
         # Sort organisms by fitness and take the top survivors
