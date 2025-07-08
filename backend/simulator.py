@@ -7,33 +7,74 @@ if __name__ == "__main__":
     PM = PopulationManager(env)
 
     print("\nSimulating Generations...")
-    PM.simulateEpoch()
+    PM.simulateGeneration()
 
     # --- PLOTTING RESULTS ---
-    # Extract historical values
-    generations = [entry["generation"] for entry in PM.history]
-    days = [entry["days_survived"] for entry in PM.history]
-    speed = [entry["avg_speed"] for entry in PM.history]
-    size = [entry["avg_size"] for entry in PM.history]
+    # Extract values
+    ticks = [h["ticks"] for h in PM.history]
+    num_prey = [h["num_prey"] for h in PM.history]
+    num_predators = [h["num_predators"] for h in PM.history]
 
-    # Plotting
-    plt.figure(figsize=(12, 6))
+    avg_size_prey = [h["avg_size_prey"] for h in PM.history]
+    avg_size_predator = [h["avg_size_predator"] for h in PM.history]
 
-    plt.subplot(1, 2, 1)
-    plt.plot(generations, days, label="Days Survived")
-    plt.xlabel("Generation")
-    plt.ylabel("Days Survived")
-    plt.title("Survival Over Time")
-    plt.grid(True)
+    avg_speed_prey = [h["avg_speed_prey"] for h in PM.history]
+    avg_speed_predator = [h["avg_speed_predator"] for h in PM.history]
 
-    plt.subplot(1, 2, 2)
-    plt.plot(generations, speed, label="Speed")
-    plt.plot(generations, size, label="Size")
-    plt.xlabel("Generation")
-    plt.ylabel("Trait Values")
-    plt.title("Trait Evolution")
+    # --- Population ---
+    plt.figure("Population Over Time", figsize=(8, 4))
+    plt.plot(ticks, num_prey, label="Prey")
+    plt.plot(ticks, num_predators, label="Predators")
+    plt.title("Population Over Time")
+    plt.xlabel("Ticks")
+    plt.ylabel("Count")
     plt.legend()
     plt.grid(True)
 
+    # --- Size ---
+    """ plt.figure("Average Size", figsize=(8, 4))
+    plt.plot(ticks, avg_size_prey, label="Prey")
+    plt.plot(ticks, avg_size_predator, label="Predators")
+    plt.title("Average Size Over Time")
+    plt.xlabel("Generation")
+    plt.ylabel("Size")
+    plt.legend()
+    plt.grid(True) """
+
+    # --- Speed ---
+    """ plt.figure("Average Speed", figsize=(8, 4))
+    plt.plot(ticks, avg_speed_prey, label="Prey")
+    plt.plot(ticks, avg_speed_predator, label="Predators")
+    plt.title("Average Speed Over Time")
+    plt.xlabel("Generation")
+    plt.ylabel("Speed")
+    plt.legend()
+    plt.grid(True) """
+
+    # Show all at once
+    plt.show()
+    print([h["food_count"] for h in PM.history])
+
+
+    """ # Speed
+    plt.figure(figsize=(10, 5))
+    plt.plot(generations, avg_speed_prey, label="Prey")
+    plt.plot(generations, avg_speed_predator, label="Predator")
+    plt.xlabel("Generation")
+    plt.ylabel("Average Speed")
+    plt.title("Average Speed Over Time")
+    plt.legend()
     plt.tight_layout()
     plt.show()
+
+    # Size
+    plt.figure(figsize=(10, 5))
+    plt.plot(generations, avg_size_prey, label="Prey")
+    plt.plot(generations, avg_size_predator, label="Predator")
+    plt.xlabel("Generation")
+    plt.ylabel("Average Size")
+    plt.title("Average Size Over Time")
+    plt.legend()
+    plt.tight_layout()
+    plt.show() """
+

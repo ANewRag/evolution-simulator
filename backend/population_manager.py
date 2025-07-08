@@ -1,90 +1,112 @@
-from organism import Organism
+from organism import Predator, Prey
 import random
 import config
 
 class PopulationManager:
     def __init__(self, environment):
-        assert(config.NUM_ORGANISMS > config.NUM_REPRODUCING)
-        self.num_organisms = config.NUM_ORGANISMS
-        self.num_reproducing = config.NUM_REPRODUCING
-        self.num_generations = config.NUM_GENERATIONS
+        self.num_prey = int(config.NUM_ORGANISMS * config.PERCENT_PREY)
+        self.num_predators = int(config.NUM_ORGANISMS * (1 - config.PERCENT_PREY))
+        self.prey_list = []
+        self.predator_list = []
+
         self.mutation_strength = config.MUTATION_STRENGTH
         self.environment = environment
         
-        self.organism_list = []
         self.generation = 1
         
         # Randomly initialize the first generation
-        for i in range(self.num_organisms):
+        for _ in range(self.num_prey):
             speed = random.randint(1, 10)
             size = random.randint(1, 10)
             x = random.randint(0, config.WORLD_WIDTH - 1)
             y = random.randint(0, config.WORLD_HEIGHT - 1)
-            self.organism_list.append(Organism(speed=speed, size=size, x=x, y=y))
+            self.prey_list.append(Prey(speed=speed, size=size, x=x, y=y))
 
+        for _ in range(self.num_predators):
+            speed = random.randint(1, 10)
+            size = random.randint(1, 10)
+            x = random.randint(0, config.WORLD_WIDTH - 1)
+            y = random.randint(0, config.WORLD_HEIGHT - 1)
+            self.predator_list.append(Predator(speed=speed, size=size, x=x, y=y))
+        
         self.history = []  # Store history of generations
 
     def get_organism_list(self):
-        return self.organism_list
+        return self.prey_list + self.predator_list
     
-    def count_alive_organisms(self):
-        return sum(1 for org in self.organism_list if org.is_alive)
+    def count_alive_prey(self):
+        return sum(1 for org in self.prey_list if org.is_alive)
     
-    def tick(self):
-        for organism in self.organism_list:
-                if organism.is_alive:
-                    organism.move_randomly(self.environment, self.organism_list)
-
-                """ if self.num_dead >= self.num_organisms - self.num_reproducing:
-                    break """
-        
-    def simulateGeneration(self):
-        days = 0
-        # Still have more living organisms than can reproduce
-        while self.count_alive_organisms() > self.num_reproducing:
-            self.tick()
-
-            days += 1
-        if __debug__:
-            print(f"Genration {self.generation} survived for {days} days")
-
-        # Record generation stats
-        avg_energy = sum(org.energy for org in self.organism_list) / len(self.organism_list)
-        avg_speed = sum(org.speed for org in self.organism_list) / len(self.organism_list)
-        avg_size = sum(org.size for org in self.organism_list) / len(self.organism_list)
-
-        self.history.append({
-        "generation": len(self.history),
-        "days_survived": days,
-        "avg_energy": avg_energy,
-        "avg_speed": avg_speed,
-        "avg_size": avg_size
-        })
-
-
-
+    def count_alive_predators(self):
+        return sum(1 for org in self.predator_list if org.is_alive)
+    
     # Creates new list of organisms based on the top survivors from the previous generaiton
     def reproduce(self):
-        new_organism_list = []
-
-        # Sort organisms by fitness and take the top survivors
-        sorted_organisms = sorted(self.organism_list, key=lambda org: org.fitness(), reverse=True)
-        parents = sorted_organisms[:self.num_reproducing]
+        new_prey_list = []
+        new_predator_list = []
         
-        while len(new_organism_list) < self.num_organisms:
-            # Create children from parents (asexual reproduction with mutation)
-            for parent in parents:
-                if len(new_organism_list) >= self.num_organisms: break
-                child = parent.mutate(self.mutation_strength)
-                new_organism_list.append(child)
+        for org in self.prey_list:
+            if org.is_alive and org.energy >= org.reproduction_baseline and random.random() < org.reproduction_rate:
+                child = org.mutate(self.mutation_strength)
+                org.energy -= org.reproduction_cost
+                new_prey_list.append(child)
+
+        for org in self.predator_list:
+            if org.is_alive and org.energy >= org.reproduction_baseline and random.random() < org.reproduction_rate:
+                child = org.mutate(self.mutation_strength)
+                org.energy -= org.reproduction_cost
+                new_predator_list.append(child)
         
-        assert(len(new_organism_list) == self.num_organisms)
-        return new_organism_list
+        # Comvine the new organisms with the survivors
+        self.prey_list = [org for org in self.prey_list if org.is_alive] + new_prey_list
+        self.predator_list = [org for org in self.predator_list if org.is_alive] + new_predator_list
+
+    
+    def tick(self):
+        self.environment.spawn_food()  # Spawn food at the start of each tick
+
+        for organism in self.prey_list:
+            if organism.is_alive:
+                organism.move_randomly(self.environment)
+
+        for organism in self.predator_list:
+            if organism.is_alive:
+                organism.move_randomly(self.prey_list)
+        
+        self.reproduce()  # Handle reproduction after movement
+
+        
+    def simulateGeneration(self):
+        # Still have more living organisms than can reproduce
+        for i in range(config.NUM_TICKS):
+            self.tick()
+
+            # Record history every 100 ticks
+            if i % 10 == 0:
+                avg_energy_prey = sum(org.energy for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+                avg_speed_prey = sum(org.speed for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+                avg_size_prey = sum(org.size for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+
+                avg_energy_predator = sum(org.energy for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+                avg_speed_predator = sum(org.speed for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+                avg_size_predator = sum(org.size for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+
+                self.history.append({
+                "ticks": i,
+                "num_prey": self.count_alive_prey(),
+                "num_predators": self.count_alive_predators(),
+                "avg_energy_prey": avg_energy_prey,
+                "avg_speed_prey": avg_speed_prey,
+                "avg_size_prey": avg_size_prey,
+                "avg_energy_predator": avg_energy_predator,
+                "avg_speed_predator": avg_speed_predator,
+                "avg_size_predator": avg_size_predator,
+                "food_count": self.environment.food_count()
+                })
 
 
-
-    def simulateEpoch(self):
-        while self.generation <= self.num_generations:
+"""     def simulateEpoch(self):
+        while self.generation <= config.NUM_GENERATIONS:
             print(f"\nSimulating Generation {self.generation}...")
             # self.environment.display(self.organism_list)
 
@@ -93,10 +115,7 @@ class PopulationManager:
             # self.environment.display(self.organism_list)
             print(f"\nEnd of Generation {self.generation}.")
 
-            self.organism_list = self.reproduce()
             self.environment.populate_food()  # Replenish food after each generation
-            self.num_dead = 0  # Reset dead count for the next generation
-
-            
             
             self.generation += 1
+ """
