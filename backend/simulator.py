@@ -6,8 +6,8 @@ if __name__ == "__main__":
     env = Environment()
     PM = PopulationManager(env)
 
-    print("\nSimulating Generations...")
-    PM.simulateGeneration()
+    print("\nSimulating Epoch")
+    PM.simulateEpoch()
 
     # --- PLOTTING RESULTS ---
     # Extract values
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     # Show all at once
     plt.show()
-    print([h["food_count"] for h in PM.history])
+    # print([h["food_count"] for h in PM.history])
 
 
     """ # Speed

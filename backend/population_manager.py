@@ -1,6 +1,6 @@
-from organism import Predator, Prey
+from .organism import Predator, Prey
 import random
-import config
+from . import config
 
 class PopulationManager:
     def __init__(self, environment):
@@ -76,7 +76,7 @@ class PopulationManager:
         self.reproduce()  # Handle reproduction after movement
 
         
-    def simulateGeneration(self):
+    def simulateEpoch(self):
         # Still have more living organisms than can reproduce
         for i in range(config.NUM_TICKS):
             self.tick()

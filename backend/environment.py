@@ -1,5 +1,5 @@
 import random
-import config
+from . import config
 
 class Environment:
     def __init__(self):

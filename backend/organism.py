@@ -1,8 +1,8 @@
 import random
-import config
+from . import config
 
 class Organism:
-    def __init__(self, speed=1, size=1, x=0, y=0, inital_energy=100, move_cost=10, reproduction_cost=50, reproduction_baseline=75, reproduction_rate=0.1):
+    def __init__(self, speed=1, size=1, x=0, y=0, inital_energy=200, move_cost=10, reproduction_cost=50, reproduction_baseline=75, reproduction_rate=0.1):
         self.speed = speed
         self.size = size
         self.x = x
@@ -80,7 +80,7 @@ class Prey(Organism):
             # Eat food
             if environment.has_food(new_x, new_y):
                 environment.remove_food(new_x, new_y)
-                self.eat(10)
+                self.eat(50)
 
         self.move(dirX * steps, dirY * steps) # Move
 
@@ -110,7 +110,6 @@ class Predator(Organism):
                     org.y == new_y and 
                     org.size < self.size
                 ):
-                    print(f"Predator at ({self.x}, {self.y}) consumed prey at ({org.x}, {org.y})")
                     # Consume the other organism
                     self.eat(org.size * 10) # Energy gained is proportional to size of prey
                     org.die()
