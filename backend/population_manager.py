@@ -12,7 +12,7 @@ class PopulationManager:
         self.mutation_strength = config.MUTATION_STRENGTH
         self.environment = environment
         
-        self.generation = 1
+        self.ticks = 0
         
         # Randomly initialize the first generation
         for _ in range(self.num_prey):
@@ -74,35 +74,39 @@ class PopulationManager:
                 organism.move_randomly(self.prey_list)
         
         self.reproduce()  # Handle reproduction after movement
+        self.ticks += 1
+
+    def record_history(self):
+        avg_energy_prey = sum(org.energy for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+        avg_speed_prey = sum(org.speed for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+        avg_size_prey = sum(org.size for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
+
+        avg_energy_predator = sum(org.energy for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+        avg_speed_predator = sum(org.speed for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+        avg_size_predator = sum(org.size for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
+
+        self.history.append({
+        "ticks": self.ticks,
+        "num_prey": self.count_alive_prey(),
+        "num_predators": self.count_alive_predators(),
+        "avg_energy_prey": avg_energy_prey,
+        "avg_speed_prey": avg_speed_prey,
+        "avg_size_prey": avg_size_prey,
+        "avg_energy_predator": avg_energy_predator,
+        "avg_speed_predator": avg_speed_predator,
+        "avg_size_predator": avg_size_predator,
+        "food_count": self.environment.food_count()
+        })
 
         
     def simulateEpoch(self):
         # Still have more living organisms than can reproduce
         for i in range(config.NUM_TICKS):
             self.tick()
-
+            
             # Record history every 100 ticks
             if i % 10 == 0:
-                avg_energy_prey = sum(org.energy for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
-                avg_speed_prey = sum(org.speed for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
-                avg_size_prey = sum(org.size for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
-
-                avg_energy_predator = sum(org.energy for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
-                avg_speed_predator = sum(org.speed for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
-                avg_size_predator = sum(org.size for org in self.predator_list) / len(self.predator_list) if len(self.predator_list) > 0 else 0
-
-                self.history.append({
-                "ticks": i,
-                "num_prey": self.count_alive_prey(),
-                "num_predators": self.count_alive_predators(),
-                "avg_energy_prey": avg_energy_prey,
-                "avg_speed_prey": avg_speed_prey,
-                "avg_size_prey": avg_size_prey,
-                "avg_energy_predator": avg_energy_predator,
-                "avg_speed_predator": avg_speed_predator,
-                "avg_size_predator": avg_size_predator,
-                "food_count": self.environment.food_count()
-                })
+                self.record_history()
 
 
 """     def simulateEpoch(self):

@@ -1,6 +1,9 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
+from fastapi.middleware.cors import CORSMiddleware
+
+from pydantic import BaseModel
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -12,6 +15,19 @@ from . import config
 
 app = FastAPI()
 PM = None
+
+origins = [
+    "http://localhost:5173",  # React dev server URL
+    "http://127.0.0.1:5173",  # IP form
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class SimulationConfig(BaseModel):
     num_organisms: int
@@ -32,9 +48,7 @@ def start_simulation(config_input: SimulationConfig):
     env = Environment()
     PM = PopulationManager(env)
 
-    PM.simulateEpoch()
-
-    return {"message": "Simulation complete", "ticks": config_input.ticks}
+    return {"message": "Simulation started"}
 
 @app.get("/plot/population")
 def plot_population():
@@ -96,3 +110,18 @@ def plot_traits():
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
+@app.get("/history")
+def get_history():
+    if PM is None:
+        return {"error": "Simulation not started"}
+    return PM.history
+
+
+@app.post("/tick")
+def tick():
+    if PM is None:
+        return {"error": "Simulation not started"}
+    for i in range(10): PM.tick()
+    PM.record_history()
+    print(PM.history[-1])
+    return PM.history[-1]  # Return the most recent stats
