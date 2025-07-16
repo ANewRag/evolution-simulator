@@ -111,7 +111,7 @@ class Predator(Organism):
                     org.size < self.size
                 ):
                     # Consume the other organism
-                    self.eat(org.size * 10) # Energy gained is proportional to size of prey
+                    self.eat(org.size * 20) # Energy gained is proportional to size of prey
                     org.die()
 
         self.move(dirX * steps, dirY * steps) # Move

@@ -33,7 +33,7 @@ class SimulationConfig(BaseModel):
     num_organisms: int
     percent_prey: float
     mutation_strength: float
-    ticks: int
+    food_spawn_rate: int
 
 @app.post("/start")
 def start_simulation(config_input: SimulationConfig):
@@ -43,7 +43,7 @@ def start_simulation(config_input: SimulationConfig):
     config.NUM_ORGANISMS = config_input.num_organisms
     config.PERCENT_PREY = config_input.percent_prey
     config.MUTATION_STRENGTH = config_input.mutation_strength
-    config.NUM_TICKS = config_input.ticks
+    config.FOOD_SPAWN_RATE = config_input.food_spawn_rate
 
     env = Environment()
     PM = PopulationManager(env)
@@ -110,6 +110,7 @@ def plot_traits():
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
+# For debugging purposes, return the history of generations
 @app.get("/history")
 def get_history():
     if PM is None:
@@ -125,3 +126,9 @@ def tick():
     PM.record_history()
     print(PM.history[-1])
     return PM.history[-1]  # Return the most recent stats
+
+@app.post("/reset")
+def reset_simulation():
+    global PM
+    PM = None
+    return {"message": "Simulation reset"}
