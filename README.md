@@ -28,10 +28,12 @@ uvicorn api:app --reload
 ### 3. Setup Frontend
 In a separate terminal window, navigate to the `evolution-simulator` folder.
 ```bash
-cd ../frontend
+cd frontend
 npm install
 npm run dev
 ```
+
+### 4. Visit http://localhost:5173/
 
 
 ## Usage
