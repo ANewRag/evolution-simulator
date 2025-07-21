@@ -1,6 +1,6 @@
-from .organism import Predator, Prey
+from organism import Predator, Prey
 import random
-from . import config
+import config
 
 class PopulationManager:
     def __init__(self, environment):

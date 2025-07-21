@@ -1,5 +1,5 @@
 import random
-from . import config
+import config
 
 class Organism:
     def __init__(self, speed=1, size=1, x=0, y=0, inital_energy=200, move_cost=10, reproduction_cost=50, reproduction_baseline=75, reproduction_rate=0.1):

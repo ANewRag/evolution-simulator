@@ -8,9 +8,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import io
-from .population_manager import PopulationManager
-from .environment import Environment
-from . import config
+from population_manager import PopulationManager
+from environment import Environment
+import config
 
 
 app = FastAPI()
@@ -124,7 +124,7 @@ def tick():
         return {"error": "Simulation not started"}
     for i in range(10): PM.tick()
     PM.record_history()
-    print(PM.history[-1])
+    # print(PM.history[-1])
     return PM.history[-1]  # Return the most recent stats
 
 @app.post("/reset")
