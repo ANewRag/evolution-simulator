@@ -31,14 +31,18 @@ class PopulationManager:
         
         self.history = []  # Store history of generations
 
+
     def get_organism_list(self):
         return self.prey_list + self.predator_list
+    
     
     def count_alive_prey(self):
         return sum(1 for org in self.prey_list if org.is_alive)
     
+    
     def count_alive_predators(self):
         return sum(1 for org in self.predator_list if org.is_alive)
+    
     
     # Creates new list of organisms based on the top survivors from the previous generaiton
     def reproduce(self):
@@ -75,6 +79,7 @@ class PopulationManager:
         
         self.reproduce()  # Handle reproduction after movement
         self.ticks += 1
+        
 
     def record_history(self):
         avg_energy_prey = sum(org.energy for org in self.prey_list) / len(self.prey_list) if len(self.prey_list) > 0 else 0
@@ -107,19 +112,3 @@ class PopulationManager:
             # Record history every 100 ticks
             if i % 10 == 0:
                 self.record_history()
-
-
-"""     def simulateEpoch(self):
-        while self.generation <= config.NUM_GENERATIONS:
-            print(f"\nSimulating Generation {self.generation}...")
-            # self.environment.display(self.organism_list)
-
-            self.simulateGeneration()
-
-            # self.environment.display(self.organism_list)
-            print(f"\nEnd of Generation {self.generation}.")
-
-            self.environment.populate_food()  # Replenish food after each generation
-            
-            self.generation += 1
- """

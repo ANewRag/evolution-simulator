@@ -20,7 +20,7 @@ function App() {
 
 
 
-  // Function to start the simulation (used both on mount and manually if needed)
+  // Function to start the simulation
   const startSimulation = async () => {
     try {
       const configData = {
@@ -57,12 +57,6 @@ function App() {
     setIsRunning(prev => !prev);
   };  
 
-  // Automatically start the simulation on mount
-/*   useEffect(() => {
-    startSimulation();
-    setIsConfigurable(false);
-  }, []); */
-
   // Tick the simulation while running
   useEffect(() => {
     let intervalId;
@@ -87,7 +81,7 @@ function App() {
       style={{
         padding: 20,
         width: '100vw',  // Full viewport width
-        height: '100vh', // Optional for full screen
+        height: '100vh', // For full screen
         boxSizing: 'border-box',
         backgroundColor: '#1e1e1e',
         color: 'white',
